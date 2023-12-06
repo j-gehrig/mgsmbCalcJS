@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Taschenrechner</title>
+    <style>
+        body {
+            color: #000000;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .lowerbutton {
+            background-color: #ebf1ff;
+            width: 50px;
+            height: 26px;
+            font-size: 19px;
+            margin: auto;
+        }
+        .upperbutton {
+            background-color: #d3ddf7;
+            width: 50px;
+            height: 22px;
+            font-size: 13px;
+            margin: auto;
+        }
+        .redbutton {
+            background-color: rgb(243, 64, 64);
+            width: 50px;
+            height: 20px;
+        }
+        .buttontext {
+            position: relative;
+            transform: translate(0%, -5%);
+        }
+        .uppertable {
+            background-color: #CBCBDD;
+            margin-left: auto;
+            margin-right: auto;
+            border: none;
+            width: 260px
+        }
+        .lowertable {
+            background-color: #CBCBDD;
+            margin-left: auto;
+            margin-right: auto;
+            border: none;
+            height: 140px;
+            width: 260px
+        }
+        .maintable {
+            background-color: rgb(90, 90, 90);
+            border-style: outset;
+            border-spacing: 4px;
+        } 
+        .display {
+            text-align: center;
+            background-color: rgb(255, 255, 255);
+            border: solid black 1px;
+        }
+        .blue{
+            color:rgb(0, 0, 255);
+        }
+        .red{
+            color:rgb(255, 0, 0);
+        }
+        .center {
+          margin: 0;
+          align-content: center;
+          text-align: center;
+        }
+    </style>
+    <script src="js/math.js"></script>
+    <script src="js/Taschenrechner.js"></script>
+    <script>
+        var dsp, ans, done, input;
+        // Display text, Ergebniss, Fertig berechnet?, Berbleibende einzugebende Parameter für Funktionen
+        qmark = "<span class=\"red\">?</span>"; // HTML Code für ein blaues Fragezeichen
+
+        function load() { 
+            // Taschenrechner wird geladen
+            dsp = document.getElementById("display");
+            dsp.innerHTML = "0";
+            done = true;
+            input = 0;
+            return;
+        }
+
+        function addtext(x) { // Text wird nach Drücken eines Buttons auf das Display übertragen
+            var olddsp = dsp.innerHTML; // Display vor der Eingabe
+            if(olddsp == "0" || done == true) {
+                olddsp = "";
+                done = false;
+            }
+            if(input == 0) { // Keine Parameter nötig (vor der Eingabe) - Text wird normal auf das Display übertragen 
+                input = x.replace(/[^?]/g, "").length; 
+                // Falls bei der neuen Funktion Parameter benötigt werden wird die Anzahl 
+                // der Parameter in Form von Fragezeichen mit Hilfe von js regex gezählt
+                
+                dsp.innerHTML = olddsp + x; // Die Eingabe wird einfach an das Ende des Displays geschrieben
+                return;
+            } 
+            else if(input > 0) {
+                input = input + x.replace(/[^?]/g, "").length;
+                // Falls bei der neuen Funktion Parameter benötigt werden wird die Anzahl 
+                // der Parameter in Form von Fragezeichen mit Hilfe von js regex gezählt
+
+                dsp.innerHTML = olddsp.replace(qmark, x+qmark);
+                // Die Eingabe wird an die Stelle, an der ein Parameter benötigt ist, hinzugefügt
+            } 
+            return;
+        }
+
+        function calc() {
+            dsp.innerHTML = dsp.innerHTML.replaceAll(qmark, "");
+            dsp.innerHTML = dsp.innerHTML.replaceAll("?", "");
+            dsp.innerHTML = dsp.innerHTML.replaceAll("<span class=\"red\">", "");
+            dsp.innerHTML = dsp.innerHTML.replaceAll("<\\span>", "");
+            // Die Fragezeichen und HTML Code wird für die Rechnung entfernt
+
+            ans = startCalc(dsp.innerHTML, ans);
+            dsp.innerHTML = ans; // Ergebniss wird berechnet und auf dem Display angezeigt
+            done = true;
+            input = 0;
+            return;
+        }
+
+        function delchar() {
+            const oprChars = ["+", "-", "*", "/", "(", ")"];
+            var olddsp = dsp.innerHTML;
+            var lastchar = olddsp[olddsp.length-1];
+
+            if(!isNaN(lastchar) || oprChars.includes(lastchar)) {
+                dsp.innerHTML = olddsp.slice(0, -1);
+        
+                if(dsp.innerHTML == "" || done == true) {
+                    dsp.innerHTML = "0";
+                    done = true;
+                    input = 0;
+                }
+                if(lastchar == qmark || lastchar == '?') input--;
+            } else {
+                var i = olddsp.length-1;
+                for(i; i >= 0; i--) {
+                    if(isNaN(olddsp[i])) break;
+                    
+                    olddsp = olddsp.slice(0, -1);
+                }
+                
+                dsp.innerHTML = olddsp;
+                if(olddsp == "" || done == true) {
+                    dsp.innerHTML = "0";
+                    done = true;
+                    input = 0;
+                }
+            }
+            return;
+        }
+
+        function delall() {
+            // Taschenrechner wird zurückgesetzt
+            dsp.innerHTML = "0";
+            input = 0;
+            done = true;
+            return;
+        }
+
+        function nextInput() {
+            // Zur Eingabe in den nächsten Parameter
+            if(input == 0) return; // Falls keine Parameter benötigt werden
+            var noInput = ["("+qmark+";", ";"+qmark+")", ";"+qmark+";"];
+            for(var i = 0; i < noInput.length; i++) {
+                if(dsp.innerHTML.includes(noInput[i])) {
+                    return;
+                    // Wenn nichts eingegeben wurde abbrechen
+                }
+            }
+            input--; // Verbleibende Parameter werden verringert
+            dsp.innerHTML = dsp.innerHTML.replace(qmark, "");
+            dsp.innerHTML = dsp.innerHTML.replace("?", qmark);
+            return;
+        }
+
+
+        document.addEventListener('keypress', (e) => {
+            // EventListener, damit der Taschenrechner auch mit Tastatur bedient werden kann
+            switch(e.key) {
+                case "1":
+                    addtext(e.key);
+                    break;
+                case "2":
+                    addtext(e.key);
+                    break;
+                case "3":
+                    addtext(e.key);
+                    break;
+                case "4":
+                    addtext(e.key);
+                    break;
+                case "5":
+                    addtext(e.key);
+                    break;
+                case "6":
+                    addtext(e.key);
+                    break;
+                case "7":
+                    addtext(e.key);
+                    break;
+                case "8":
+                    addtext(e.key);
+                    break;
+                case "9":
+                    addtext(e.key);
+                    break;
+                case "0":
+                    addtext(e.key);
+                    break;
+
+                case "+":
+                    addtext(e.key);
+                    break;
+                case "*":
+                    addtext(e.key);
+                    break;
+                case "-":
+                    addtext(e.key);
+                    break;
+                case "/":
+                    addtext(e.key);
+                    break;
+                case ".":
+                    addtext(e.key);
+                    break;
+                case "a":
+                    addtext('ans');
+                    break;
+                case "(":
+                    addtext(e.key);
+                    break;
+                case ")":
+                    addtext(e.key);
+                    break;
+
+                case "^":
+                    addtext('pow('+qmark+';?)');
+                    break;
+                case "p":
+                    addtext('pow('+qmark+';?)');
+                    break;
+                case "r":
+                    addtext('root('+qmark+';?)');
+                    break;
+                case "P":
+                    addtext('pi');
+                    break;
+                case "l":
+                    addtext('ln('+qmark+')');
+                    break;
+                case "L":
+                    addtext('log('+qmark+';?)');
+                    break;
+                case "e":
+                    addtext('e');
+                    break;
+                case "E":
+                    addtext('E');
+                    break;
+                case "s":
+                    addtext('sin('+qmark+')');
+                    break;
+                case "S":
+                    addtext('arcsin('+qmark+')');
+                    break;
+                case "t":
+                    addtext('tan('+qmark+')');
+                    break;
+                case "T":
+                    addtext('arctan('+qmark+')');
+                    break;
+
+                /*case "Enter":
+                    if(input == 0) { calc(); } else { nextInput(); }
+                    break;*/
+                case "c":
+                    delall();
+                    break;
+                case "=":
+                    calc();
+                    break;
+                case "n":
+                    nextInput();
+                    break;
+                case "Backspace":
+                    delchar();
+                    break;
+                case "del":
+                    delchar();
+                    break;
+            }
+            return;
+        });
+    </script>
+</head>
+
+<body text="000000" link="FF0000" alink="FF0000" vlink="FF0000" onload="load()">
+    <div class="center">
+    
+    <form id="form">
+
+        <table class="maintable" width="245" height="325">
+            <tr class="center">
+                <td> <div class="display" name="display" id="display">0</div> </td>
+            </tr>
+            <tr>
+                <td>
+                <table width="260" cellpadding="1" class="uppertable">
+                    <tr class="center">
+                        <td><button type="button" name="e" class="upperbutton" onclick="addtext( 'e' )">
+                            <div class="buttontext">e</div>
+                        </button></td>
+                        <td><button type="button" name="pi" class="upperbutton" onclick="addtext( 'pi' )">
+                            <div class="buttontext">pi</div>
+                        </button></td>
+                        <td><button type="button" name="ln" class="upperbutton" onclick="addtext( 'ln(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">ln</div>
+                        </button></td>
+                        <td><button type="button" name="log" class="upperbutton" onclick="addtext( 'log(<span class=\'red\'>?</span>;?)' )">
+                            <div class="buttontext">log</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="sqrrtx" class="upperbutton" onclick="addtext( 'root(2;<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">&#8730;x</div>
+                        </button></td>
+                        <td><button type="button" name="nrtx" class="upperbutton" onclick="addtext( 'root(<span class=\'red\'>?</span>;?)' )">
+                            <div class="buttontext"><sup>n</sup>&#8730;x</div>
+                        </button></td>
+                        <td><button type="button" name="e^x" class="upperbutton" onclick="addtext( 'pow(e;<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">e<sup>x</sup></div>
+                        </button></td>
+                        <td><button type="button" name="10^x" class="upperbutton" onclick="addtext( 'pow(10;<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">10<sup>x</sup></div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="x^2" class="upperbutton" onclick="addtext( 'pow(<span class=\'red\'>?</span>;2)' )">
+                            <div class="buttontext">x<sup>2</sup></div>
+                        </button></td>
+                        <td><button type="button" name="x^y" class="upperbutton" onclick="addtext( 'pow(<span class=\'red\'>?</span>;?)' )">
+                            <div class="buttontext">x<sup>y</sup></div>
+                        </button></td>
+                        <td><button type="button" name="E" class="upperbutton" onclick="addtext( 'E' )">
+                            <div class="buttontext">E</div>
+                        </button></td>
+                        <td><button type="button" name="x^-1" class="upperbutton" onclick="addtext( 'pow(<span class=\'red\'>?</span>;-1)' )">
+                            <div class="buttontext">x<sup>-1</sup></div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="sin" class="upperbutton" onclick="addtext( 'sin(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">sin</div>
+                        </button></td>
+                        <td><button type="button" name="cos" class="upperbutton" onclick="addtext( 'cos(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">cos</div>
+                        </button></td>
+                        <td><button type="button" name="tan" class="upperbutton" onclick="addtext( 'tan(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">tan</div>
+                        </button></td>
+                        <td><button type="button" name="next" class="upperbutton" onclick="nextInput()">
+                            <div class="buttontext">next</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="sinm1" class="upperbutton" onclick="addtext( 'arcsin(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">sin<sup>-1</sup></div>
+                        </button></td>
+                        <td><button type="button" name="cosm1" class="upperbutton" onclick="addtext( 'arccos(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">cos<sup>-1</sup></div>
+                        </button></td>
+                        <td><button type="button" name="tanm1" class="upperbutton" onclick="addtext( 'arctan(<span class=\'red\'>?</span>)' )">
+                            <div class="buttontext">tan<sup>-1</sup></div>
+                        </button></td>
+                        <td><button type="button" name="negativ" class="upperbutton" onclick="addtext( 'ans' )">
+                            <div class="buttontext">ans</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="klauf" class="upperbutton" onclick="addtext( '(' )">
+                            <div class="buttontext">(</div>
+                        </button></td>
+                        <td><button type="button" name="klzu" class="upperbutton" onclick="addtext( ')' )">
+                            <div class="buttontext">)</div>
+                        </button></td>
+                        <td><button type="button" name="del" class="redbutton" onclick="delchar()">
+                            <div class="buttontext">DEL</div>
+                        </button></td>
+                        <td><button type="button" name="clear" class="redbutton" onclick="delall()">
+                            <div class="buttontext">C</div>
+                        </button></td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                <table cellpadding="1" class="lowertable">
+                    <tr class="center">
+                        <td><button type="button" name="sieben" class="lowerbutton" onclick="addtext('7')">
+                            <div class="buttontext">7</div>
+                        </button></td>
+                        <td><button type="button" name="acht" class="lowerbutton" onclick="addtext('8')">
+                            <div class="buttontext">8</div>
+                        </button></td>
+                        <td><button type="button" name="neun" class="lowerbutton" onclick="addtext('9')">
+                            <div class="buttontext">9</div>
+                        </button></td>
+                        <td><button type="button" name="durch" class="lowerbutton" onclick="addtext('/')">
+                            <div class="buttontext">/</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="vier" class="lowerbutton" onclick="addtext('4')">
+                            <div class="buttontext">4</div>
+                        </button></td>
+                        <td><button type="button" name="fuenf" class="lowerbutton" onclick="addtext('5')">
+                            <div class="buttontext">5</div>
+                        </button></td>
+                        <td><button type="button" name="sechs" class="lowerbutton" onclick="addtext('6')">
+                            <div class="buttontext">6</div>
+                        </button></td>
+                        <td><button type="button" name="mal" class="lowerbutton" onclick="addtext('*')">
+                            <div class="buttontext">x</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="eins" class="lowerbutton" onclick="addtext('1')">
+                            <div class="buttontext">1</div>
+                        </button></td>
+                        <td><button type="button" name="zwei" class="lowerbutton" onclick="addtext('2')">
+                            <div class="buttontext">2</div>
+                        </button></td>
+                        <td><button type="button" name="drei" class="lowerbutton" onclick="addtext('3')">
+                            <div class="buttontext">3</div>
+                        </button></td>
+                        <td><button type="button" name="minus" class="lowerbutton" onclick="addtext('-')">
+                            <div class="buttontext">-</div>
+                        </button></td>
+                    </tr>
+                    <tr class="center">
+                        <td><button type="button" name="null" class="lowerbutton" onclick="addtext('0')">
+                            <div class="buttontext">0</div>
+                        </button></td>
+                        <td><button type="button" name="komma" class="lowerbutton" onclick="addtext('.')">
+                            <div class="buttontext">.</div>
+                        </button></td>
+                        <td><button type="button" name="gleich" class="lowerbutton" onclick="calc()">
+                            <div class="buttontext">=</div>
+                        </button></td>
+                        <td><button type="button" name="plus" class="lowerbutton" onclick="addtext('+')">
+                            <div class="buttontext">+</div>
+                        </button></td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+        </table>
+    </form>
+    </div>
+</body>
+
+</html>

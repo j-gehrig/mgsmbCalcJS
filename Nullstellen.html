@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nullstellenrechner</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .wrapper {
+            position: absolute;
+            max-height: 60%;
+            min-width: 20%;
+            overflow-y: scroll;
+            border: 1px groove black;
+        }
+        .table {
+            position: relative;
+            min-height: 5%;
+            width: 100%;
+        }
+        .col {
+            position: relative;
+            padding: 0.5em;
+            top: 0;
+            bottom: 0;
+            /*transform:translate(50%, 50%);*/
+        }
+        .x {
+            color: red;
+        }
+    </style>
+    <script src="js/math.js"></script>
+    <script src="js/roots.js"></script>
+    <script>
+        async function init() {
+            var time = new Date().getTime();
+
+            document.getElementById("ans").innerHTML = "<tr><td class=\"col\">n</td><td class=\"col x\">x</td><td class=\"col\">f'(x)</td></tr>";
+
+            /*fx = document.getElementById("fx").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(");
+            f1x = document.getElementById("f1x").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(");
+            f2x = document.getElementById("f2x").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(");*/
+            
+            eval("var f = function(x) { return " + document.getElementById("fx").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(") + "; };");
+            eval("var f1 = function(x) { return " + document.getElementById("f1x").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(") + "; };");
+            eval("var f2 = function(x) { return " + document.getElementById("f2x").value.replaceAll("sin(", "sin_init(").replaceAll("e(", "e_init(") + "; };");
+
+            a = parseInt(document.getElementById("a").value);
+            b = parseInt(document.getElementById("b").value);
+            n = parseInt(document.getElementById("n").value);
+
+            var result = await find_roots(f, f1, f2, a, b, n);
+
+            for(var i = 0; i < result.length; i++) {
+                document.getElementById("ans").innerHTML += "<tr><td class=\"col\">"+i+"</td><td class=\"col x\">"+result[i]+"</td><td class=\"col\">"+parseFloat(f1(result[i]).toFixed(15))+"</td></tr>";
+            }
+
+            document.getElementById("ans").innerHTML += "<tr><td>" + result.length + " total roots</td><td></td><td>Took "+ (new Date().getTime() - time) +" ms</td></tr>";
+        }
+    </script>
+</head>
+<body>
+    <h1>Nullstellenrechner</h1>
+    <br>
+    <table>
+        <tr>
+            <td>Funktion: f(x) = </td>
+            <td><input type="text" id="fx"></input></td>
+        </tr>
+        <tr>
+            <td>Ableitung: f'(x) = </td>
+            <td><input type="text" id="f1x"></input></td>
+        </tr>
+        <tr>
+            <td>Ableitung: f''(x) = </td>
+            <td><input type="text" id="f2x"></input></td>
+        </tr>
+        <tr>
+            <td>Untere Grenze:</td>
+            <td><input type="text" id="a"></input></td>
+        </tr>
+        <tr>
+            <td>Obere Grenze:</td>
+            <td><input type="text" id="b"></input></td>
+        </tr>
+        <tr>
+            <td>Intervalle:</td>
+            <td><input type="text" id="n"></input></td>
+        </tr>
+    </table>
+
+    <button onclick="init()"> Berechnen </button>
+    <br>
+    <br>
+    <br>Ergebniss: <br><br>
+    <div class="wrapper">
+    <table id="ans" class="table">
+        <tr>
+            <td class="col">n</td>
+            <td class="col x">x</td>
+            <td class="col">f'(x)</td>
+        </tr>
+    </table>
+    </div>
+</body>
+</html>

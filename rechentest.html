@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rechentest</title>
+    <script src="js/math.js"></script>
+
+    <script>
+        // ----------------- Fakultät funktionen -----------------
+        function fakult_out() {
+            var x = parseInt(prompt("Fakultät von x! Geben Sie x an:", ""));
+            if(isNaN(x) || x == null) {
+                document.getElementById("ans").innerHTML = "Fehler! x ist keine Zahl!";
+                return;
+            }
+
+            if(document.getElementById("ans").innerHTML != "") {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("</span><br>________________________________________<br>", "");
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("<span style=\"color: blue\">Neu: ", "");
+            }
+            document.getElementById("ans").innerHTML = "<span style=\"color: blue\">Neu: " + x + "! = " + fakult(x) + "</span><br>________________________________________<br><br>" + document.getElementById("ans").innerHTML;
+            return;
+        }
+
+        // ----------------- Potenzen oder ähnliches -----------------
+        function pot_out() {
+            var a = parseFloat(prompt("Potenz von a hoch n! Geben Sie a an:", ""));
+            var n = parseFloat(prompt("Potenz von a hoch n! Geben Sie n an:", ""));
+            if(isNaN(a) || a == null) {
+                document.getElementById("ans").innerHTML = "Fehler! a ist keine Zahl!";
+                return;
+            }
+            if(isNaN(n) || n == null) {
+                document.getElementById("ans").innerHTML = "Fehler! n ist keine Zahl!";
+                return;
+            }
+
+            if(document.getElementById("ans").innerHTML != "") {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("</span><br>________________________________________<br>", "");
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("<span style=\"color: blue\">Neu: ", "");
+            }
+            document.getElementById("ans").innerHTML = "<span style=\"color: blue\">Neu: " + a + "<sup>" + n + "</sup> = " + pow(a, n) + "</span><br>________________________________________<br><br>" + document.getElementById("ans").innerHTML;
+            return;
+        }
+        function ln_out() {
+            x = parseFloat(prompt("ln von x! Geben Sie x an:", ""));
+            if(isNaN(x) || x == null) {
+                document.getElementById("ans").innerHTML = "Fehler! x ist keine Zahl!";
+                return;
+            }
+
+            if(document.getElementById("ans").innerHTML != "") {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("</span><br>________________________________________<br>", "");
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("<span style=\"color: blue\">Neu: ", "");
+            }
+            document.getElementById("ans").innerHTML = "<span style=\"color: blue\">Neu: ln(" + x + ") = " + ln(x) + "</span><br>________________________________________<br><br>" + document.getElementById("ans").innerHTML;
+        }
+
+        // ----------------- Sinusfunktionen -----------------
+        function sin_out() {
+            var x = parseFloat(prompt("Sinus von x! Geben Sie x an:", ""));
+            //var e = parseFloat(prompt("Sinus von x! Geben Sie e an:", ""));
+            if(isNaN(x) || x == null) {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML + "<br>Fehler! x ist keine Zahl!";
+                return;
+            }
+            if(document.getElementById("ans").innerHTML != "") {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("</span><br>________________________________________<br>", "");
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("<span style=\"color: blue\">Neu: ", "");
+            }
+            document.getElementById("ans").innerHTML = "<span style=\"color: blue\">Neu: sin(" + x + ") = " + sin_init(x) + "</span><br>________________________________________<br><br>" + document.getElementById("ans").innerHTML;
+            //console.log("[sin_out] Wahrer Sinus: " + Math.sin(x));
+            return;
+        }
+        function rt_out() {
+            var x = parseFloat(prompt("n-te Wurzel aus x! Geben Sie x an:", ""));
+            var n = parseFloat(prompt("n-te Wurzel aus x! Geben Sie n an:", ""));
+            if(isNaN(x) || x == null) {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML + "<br>Fehler! x ist keine Zahl!";
+                return;
+            }
+            if(isNaN(n) || n == null) {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML + "<br>Fehler! n ist keine Zahl!";
+                return;
+            }
+            let ans = root(n, x)
+            if(document.getElementById("ans").innerHTML != "") {
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("</span><br>________________________________________<br>", "");
+                document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML.replace("<span style=\"color: blue\">Neu: ", "");
+            }
+            document.getElementById("ans").innerHTML = "<span style=\"color: blue\">Neu: root(" + n + ";" + x + ") = " + ans + "</span><br>________________________________________<br><br>" + document.getElementById("ans").innerHTML;
+            
+            return;
+        }
+    </script>
+
+</head>
+<body>
+    <h1>Funkionstest</h1>
+    <br>
+    <button onclick="fakult_out()"> Fakultät von x </button> 
+    <button onclick="pot_out()"> Potenz von a<sup>n</sup> </button> 
+    <button onclick="sin_out()"> Sinus von x </button>
+    <button onclick="rt_out()"> n-te Wurzel aus x </button>
+    <button onclick="ln_out()"> ln von x </button>
+    
+    
+    <br>Ergebniss: <br><br><div id="ans"></div>
+    
+</body>
+</html>
